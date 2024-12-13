@@ -3,6 +3,7 @@
 # Library
 import praw
 
+
 # Fonction affichage hiérarchie dict
 def showDictStruct(d):
     def recursivePrint(d, i):
@@ -151,6 +152,41 @@ for doc in collection:
 #print(repr(corpus))
 
 
+# =============== PARTIE 6 =============
+
+# Recherche d'un mot spécifique dans le corpus
+mot_cle = "machine"  # Exemple : chercher le mot "machine"
+resultats_search = corpus.search(mot_cle)
+resultats_concorde = corpus.concorde(mot_cle, 50)
+
+# Affichage des résultats
+print(f"Occurrences du mot '{mot_cle}' trouvées dans le corpus :")
+for doc_id, mot_trouve in resultats_search:
+    print(f"Document ID: {doc_id}, Mot trouvé: {mot_trouve}")
+
+print(f"Occurrences du mot '{mot_cle}' trouvées dans le corpus :")
+print(resultats_concorde)
+
+
+print(corpus.vocabulaire())
+print(corpus.calculer_freq())
+corpus.sauvegarder_frequences()
+corpus.sauvegarder_vocabulaire()
+
+# =============== PARTIE 7 =============
+from Search_Engine import SearchEngine
+
+moteur = SearchEngine(corpus)
+
+# Effectuer une recherche
+query = "machine learning"
+top_k = 5
+resultats = moteur.search(query, top_k)
+
+print("Résultats de la recherche :")
+print(resultats)
+
+# cette partie est laisser à la fin car on supprime notre variable corpus déjà faite
 # =============== 2.9 : SAUVEGARDE ===============
 import csv
 
@@ -183,12 +219,13 @@ with open("corpus.pkl", "rb") as f:
     corpus = pickle.load(f)
 
 
-# Sauvegarde au format CSV
-sauvegarder_csv(collection, "corpus.csv")
+# test pour l'ajout d'une méthode permettant d'importer un corpus déjà fait
 
+# Charger le corpus sauvegardé au format pickle meilleur méthode pour importer/créer la classe que csv
+corpus_pickle = Corpus.from_pickle("corpus.pkl")
 
-
-
+# Charger le corpus sauvegardé au format CSV de manière static un peu nul comme méthode
+corpus_csv = Corpus.from_csv("corpus.csv")
 
 
 
