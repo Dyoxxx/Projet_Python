@@ -1,0 +1,129 @@
+# Documentation de l'Application Python
+
+## Introduction
+Cette application est un outil d'analyse, de recherche et de comparaison de documents, spécialement conçu pour explorer les corpus documentaires. Pour assurer la solidité du système, l'architecture utilise plusieurs classes Python, un moteur de recherche, une interface utilisateur Streamlit et différents tests unitaires.
+---
+
+## Modules et Fichiers
+
+### 1. **Corpus.py**
+Ce module gère la structure des corpus documentaires et fournit des fonctionnalités comme l'ajout de documents, la recherche, la gestion du vocabulaire et la fréquence des mots.
+
+#### Principales Méthodes :
+- **`add(doc)`** : Ajoute un document au corpus.
+- **`search(keyword)`** : Recherche un mot-clé dans les textes.
+- **`concorde(expression, context=30)`** : Génère une concordance des expressions trouvées dans les documents.
+- **`vocabulaire()`** : Renvoie le vocabulaire unique du corpus.
+- **`calculer_freq()`** : Calcule les fréquences des termes et des documents.
+- **`query_with_filters(...)`** : Recherche avancée avec des filtres (auteur, type de document, période temporelle).
+- **`from_pickle(file)`** : Charge un corpus depuis un fichier Pickle.
+
+---
+
+### 2. **Corpus_Analyzer.py**
+Ce module compare deux corpus pour analyser les similarités et les différences de vocabulaire.
+
+#### Méthodes Principales :
+- **`compare_vocab()`** : Compare les vocabulaires des deux corpus et identifie les mots communs ou spécifiques.
+
+---
+
+### 3. **Evolution_Temporelle.py**
+Ce module analyse l'évolution temporelle des mots-clés dans un corpus.
+
+#### Fonction Principale :
+- **`mots_evolution_temporelle(corpus, mots_cles, periode='monthly')`** : Analyse la fréquence temporelle des mots-clés par période (mensuelle ou annuelle).
+
+---
+
+### 4. **Interface_Streamlit.py**
+Ce fichier gère l'interface utilisateur en utilisant Streamlit.
+
+#### Principales Fonctionnalités :
+- Chargement et exploration de corpus.
+- Recherche avancée (TF-IDF et BM25).
+- Génération de nuages de mots.
+- Analyse temporelle des mots-clés.
+- Comparaison de corpus.
+- Exportation des vocabulaires et des fréquences en fichiers CSV.
+
+---
+
+### 5. **Search_Engine.py**
+Moteur de recherche intégré basé sur TF-IDF et BM25.
+
+#### Méthodes Importantes :
+- **`build_vocab()`** : Génère le vocabulaire des documents.
+- **`build_matrices()`** : Construit les matrices TF et TF-IDF.
+- **`search_tfidf(query, top_k)`** : Recherche les documents les plus pertinents avec TF-IDF.
+- **`search_bm25(query, top_k)`** : Recherche les documents les plus pertinents avec BM25.
+
+---
+
+### 6. **TD4_Classes.py**
+Ce fichier définit les classes de base des documents et des auteurs.
+
+#### Classes :
+- **`Document`** : Représente un document générique.
+- **`Author`** : Gère les informations et les productions des auteurs.
+
+---
+
+### 7. **TD5_Classes.py**
+Ce module étend les classes de TD4 pour inclure des types spécifiques de documents :
+- **`RedditDocument`** : Documents issus de Reddit.
+- **`ArxivDocument`** : Articles scientifiques issus d'arXiv.
+- **`DocumentGenerator`** : Générateur de documents basé sur leur type.
+
+---
+
+### 8. **Test_Search_Engine.py**
+Tests unitaires pour vérifier le fonctionnement du moteur de recherche et des modules associés.
+
+#### Tests Incluent :
+- Construction du vocabulaire.
+- Recherche TF-IDF et BM25.
+- Analyse temporelle.
+- Comparaison de corpus.
+
+---
+
+### 9. **Test_Scripts.py**
+Tests Pytest pour valider les classes, les méthodes de `Corpus` et les fonctions d'analyse.
+
+#### Principaux Tests :
+- Création et manipulation des documents.
+- Recherche et extraction de vocabulaire.
+- Analyse temporelle des mots-clés.
+
+---
+
+## Diagramme Simplifié des Dépendances
+```
+TD4_Classes
+   └─┬──┬── Corpus.py
+     ├─ TD5_Classes
+     └─┬─ Corpus_Analyzer.py
+           ├─ Evolution_Temporelle.py
+           ├─ Search_Engine.py
+           └─ Interface_Streamlit.py
+```
+
+## Utilisation Générale
+1. **Chargement des Corpus** : Chargez les fichiers Pickle via l'interface Streamlit ou directement dans le code.
+2. **Recherche** : Effectuez des recherches simples ou avancées.
+3. **Analyse** : Générez des concordances, analysez les mots-clés ou comparez des corpus.
+4. **Exportation** : Téléchargez les résultats ou exportez les données pour des analyses externes.
+
+---
+
+## Prochaines Améliorations
+- Intégration d'une API REST pour la recherche et l'analyse.
+- Support pour de nouveaux types de documents.
+- Amélioration de l'interface utilisateur pour une meilleure navigation.
+
+---
+
+## Auteurs et Contribution
+- Principals Développeurs : MBOUP Modou, LECOMTE Thibaud
+

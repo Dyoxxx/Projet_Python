@@ -5,6 +5,8 @@ import re
 import pandas as pd
 import string
 import pickle
+import os
+from datetime import datetime
 
 class Corpus:
     def __init__(self, nom):
@@ -111,26 +113,76 @@ class Corpus:
         freq_df.index.name = "Mot"
         return freq_df
     
-    def sauvegarder_vocabulaire(self, fichier_vocabulaire="vocabulaire.txt"):
-        vocabulaire = self.vocabulaire()
-        with open(fichier_vocabulaire, "w", encoding="utf-8") as f:
-            for mot in sorted(vocabulaire):
-                f.write(f"{mot}\n")
-        print(f"Vocabulaire sauvegardé dans {fichier_vocabulaire}")
-
-    def sauvegarder_frequences(self, fichier_frequences="frequences.csv"):
-        freq_df = self.calculer_freq()
-        freq_df.to_csv(fichier_frequences, index=True, encoding="utf-8")
-        print(f"Fréquences sauvegardées dans {fichier_frequences}")
+    def query_with_filters(self, mot_cle, auteur=None, type_source=None, date_debut=None, date_fin=None):
+        """
+        Effectue une recherche avancée avec des filtres sur l'auteur, le type de source, et la période temporelle.
         
-    # Méthode pour charger un corpus depuis un fichier pickle
-    @staticmethod
-    def from_pickle(fichier_pickle):
-        with open(fichier_pickle, "rb") as f:
-            corpus = pickle.load(f)
-        print(f"Corpus chargé depuis {fichier_pickle}")
-        return corpus
+        Arguments :
+            - mot_cle : mot-clé à rechercher
+            - auteur : nom de l'auteur à filtrer (str ou None)
+            - type_source : type de document ('Reddit', 'Arxiv', ou None)
+            - date_debut : date de début pour la recherche (str 'YYYY-MM-DD' ou None)
+            - date_fin : date de fin pour la recherche (str 'YYYY-MM-DD' ou None)
+        
+        Retourne :
+            - Un DataFrame contenant les résultats filtrés.
+        """
+        results = []
+        
+        # Conversion des dates en objets datetime
+        if date_debut:
+            date_debut = datetime.strptime(date_debut, '%Y-%m-%d')
+        if date_fin:
+            date_fin = datetime.strptime(date_fin, '%Y-%m-%d')
 
+        for doc_id, doc in self.id2doc.items():
+            # Filtrage par auteur
+            if auteur:
+                # Diviser doc.auteur en une liste si c'est une chaîne contenant plusieurs auteurs
+                auteurs = [a.strip() for a in doc.auteur.split(",")] if isinstance(doc.auteur, str) else doc.auteur
+                    
+                auteurs = [a.lower() for a in auteurs]
+                auteur_cible = auteur.strip().lower()
+                    
+                if auteur_cible not in auteurs:
+                    continue
+
+            # Filtrage par type de source
+            if type_source and doc.type != type_source:
+                continue
+
+            # Filtrage par période temporelle
+            if doc.date:
+                doc_date = datetime.strptime(doc.date, '%Y/%m/%d')
+                if (date_debut and doc_date < date_debut) or (date_fin and doc_date > date_fin):
+                    continue
+
+            # Recherche de mot-clé dans le texte
+            mot_cle = mot_cle.lower()
+            if mot_cle in doc.texte.lower():
+                results.append({
+                    "Titre": doc.titre,
+                    "Auteur": doc.auteur,
+                    "Date": doc.date,
+                    "Type": doc.type,
+                    "Texte": doc.texte[:200] + "...",  # Affiche un extrait du texte
+                    "Mots trouvés": mot_cle
+                })
+
+        # Conversion en DataFrame pour un affichage clair
+        return pd.DataFrame(results)
+    
+    # Méthode pour charger un corpus depuis un fichier pickle
+    @classmethod
+    def from_pickle(cls, fichier_pickle):
+        if isinstance(fichier_pickle, (str, bytes, os.PathLike)):
+            # Cas d'un chemin de fichier
+            with open(fichier_pickle, "rb") as f:
+                return pickle.load(f)
+        else:
+            # Cas d'un flux (par exemple, UploadedFile de Streamlit)
+            return pickle.load(fichier_pickle)
+'''
     @staticmethod # méthode moins quali a voir si on garde
     def from_csv(fichier_csv):
         df = pd.read_csv(fichier_csv)
@@ -161,3 +213,19 @@ class Corpus:
             corpus.add(doc)
         print(f"Corpus chargé depuis {fichier_csv}")
         return corpus
+
+# Exemple d'utilisation
+corpus = Corpus.from_pickle("corpus1.pkl")
+
+# Requête avancée
+mots_cles = ["In"]
+resultats = corpus.query_with_filters(
+    mots_cles,
+    auteur="Yishu Xue",
+    type_source="",
+    date_debut="2000-01-01",
+    date_fin="2024-12-31"
+)
+
+print(resultats)
+'''
